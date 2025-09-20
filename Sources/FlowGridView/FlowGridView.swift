@@ -3,11 +3,14 @@
 
 import UIKit
 
+/// A flexible grid view that arranges its subviews in a flow layout with configurable columns, spacing, and insets.
+/// Supports dynamic content height updates and per-view configuration.
 @MainActor
 class FlowGridView: UIView {
     
     // MARK: - Public Properties
     
+    /// Number of columns in the grid. Minimum is 1.
     var column: UInt = 1 {
         didSet {
             if column == 0 {
@@ -19,6 +22,7 @@ class FlowGridView: UIView {
         }
     }
     
+    /// Insets for the content area (top and bottom only).
     var edgeInsets: UIEdgeInsets = UIEdgeInsets.zero {
         didSet {
             if oldValue != edgeInsets {
@@ -28,6 +32,7 @@ class FlowGridView: UIView {
         }
     }
     
+    /// Vertical spacing between rows.
     var verticalSpacing: CGFloat = 0 {
         didSet {
             if oldValue != verticalSpacing {
@@ -36,6 +41,7 @@ class FlowGridView: UIView {
         }
     }
     
+    /// Horizontal spacing between columns.
     var horizontalSpacing: CGFloat = 0 {
         didSet {
             if oldValue != horizontalSpacing {
@@ -44,10 +50,18 @@ class FlowGridView: UIView {
         }
     }
     
+    /// Callback when the content height changes (e.g., after layout).
     var contentHeightUpdated: ((_ contentHeight: CGFloat) -> Void)?
     
     // MARK: - Public Functions
         
+    /// Configure a subview's properties in the grid.
+    /// - Parameters:
+    ///   - view: The subview to configure.
+    ///   - hidden: Whether the view is hidden.
+    ///   - huggingPriority: Content hugging priority for horizontal axis.
+    ///   - column: Number of columns this view should span.
+    ///   - minHeight: Minimum height for this view.
     func configView(_ view: UIView, hidden: Bool? = nil, huggingPriority: UILayoutPriority? = nil, column: UInt? = nil, minHeight: CGFloat? = nil) {
         if !subviews.contains(where: { element in
             return element == view
@@ -87,6 +101,7 @@ class FlowGridView: UIView {
 
     // MARK: - Layout
     
+    /// Adds a subview to the grid. Use this instead of directly adding to contentView.
     override func addSubview(_ view: UIView) {
         if contentView.superview != self {
             super.addSubview(contentView)
@@ -98,6 +113,7 @@ class FlowGridView: UIView {
         setNeedsLayout()
     }
     
+    /// Lays out subviews in a flow grid arrangement.
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -128,6 +144,7 @@ class FlowGridView: UIView {
         }
     }
     
+    /// Calculates the size for a row of views.
     private func getRowViewSize(_ views: [UIView]) -> CGSize {
         var height: CGFloat = 0
         let width: CGFloat = (self.contentView.frame.size.width + self.horizontalSpacing - edgeInsets.left - edgeInsets.right) / CGFloat(self.column) - self.horizontalSpacing
@@ -148,6 +165,7 @@ class FlowGridView: UIView {
         return CGSize(width: width, height: height)
     }
     
+    /// Lays out a single row of views at the given vertical offset.
     private func layoutRowViews(_ views: [UIView], offsetY: CGFloat, size: CGSize) {
         var offsetX: CGFloat = edgeInsets.left
         views.forEach { element in
@@ -159,6 +177,7 @@ class FlowGridView: UIView {
         }
     }
 
+    /// Returns an array of visible view rows, each row is an array of views.
     private func getVisibleViewRows() -> [[UIView]] {
         var visible: [[UIView]] = []
         var views: [UIView] = []
@@ -183,6 +202,7 @@ class FlowGridView: UIView {
         return visible
     }
     
+    /// Updates the column span for views with the same hugging priority to fill remaining columns.
     private func updateHuggingViews(_ views: [UIView]) {
         if views.count <= 1 {
             return
@@ -229,6 +249,7 @@ class FlowGridView: UIView {
     
     // MARK: - Configuration
     
+    /// Stores per-view configuration for the grid.
     private class Configuration: NSObject {
         var column: UInt = 1 {
             didSet {
@@ -244,10 +265,12 @@ class FlowGridView: UIView {
         var minHeight: CGFloat = 0
     }
     
+    /// Stores configuration for each subview.
     private var configurations: [UIView: Configuration] = [:]
         
     // MARK: - ContentView
     
+    /// The scrollable content view that holds all arranged subviews.
     private(set) lazy var contentView: UIScrollView = {
         let view = UIScrollView()
         return view
