@@ -6,7 +6,7 @@ import UIKit
 /// A flexible grid view that arranges its subviews in a flow layout with configurable columns, spacing, and insets.
 /// Supports dynamic content height updates and per-view configuration.
 @MainActor
-class FlowGridView: UIView {
+open class FlowGridView: UIView {
     
     // MARK: - Public Properties
     
@@ -62,7 +62,7 @@ class FlowGridView: UIView {
     ///   - huggingPriority: Content hugging priority for horizontal axis.
     ///   - column: Number of columns this view should span.
     ///   - minHeight: Minimum height for this view.
-    func configView(_ view: UIView, hidden: Bool? = nil, huggingPriority: UILayoutPriority? = nil, column: UInt? = nil, minHeight: CGFloat? = nil) {
+    open func configView(_ view: UIView, hidden: Bool? = nil, huggingPriority: UILayoutPriority? = nil, column: UInt? = nil, minHeight: CGFloat? = nil) {
         if !subviews.contains(where: { element in
             return element == view
         }) {
@@ -102,7 +102,7 @@ class FlowGridView: UIView {
     // MARK: - Layout
     
     /// Adds a subview to the grid. Use this instead of directly adding to contentView.
-    override func addSubview(_ view: UIView) {
+    open override func addSubview(_ view: UIView) {
         if contentView.superview != self {
             super.addSubview(contentView)
         }
@@ -114,7 +114,7 @@ class FlowGridView: UIView {
     }
     
     /// Lays out subviews in a flow grid arrangement.
-    override func layoutSubviews() {
+    open override func layoutSubviews() {
         super.layoutSubviews()
         
         if CGSizeEqualToSize(bounds.size, CGSizeZero) {
