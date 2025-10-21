@@ -62,7 +62,7 @@ open class FlowGridView: UIView {
     ///   - huggingPriority: Content hugging priority for horizontal axis.
     ///   - column: Number of columns this view should span.
     ///   - minHeight: Minimum height for this view.
-    open func configView(_ view: UIView, hidden: Bool? = nil, huggingPriority: UILayoutPriority? = nil, column: UInt? = nil, minHeight: CGFloat? = nil) {
+    open func configView(_ view: UIView, hidden: Bool? = nil, huggingPriority: UILayoutPriority? = nil, column: UInt? = nil, minHeight: CGFloat? = nil, expandContent: Bool = false) {
         if !subviews.contains(where: { element in
             return element == view
         }) {
@@ -76,23 +76,27 @@ open class FlowGridView: UIView {
                 updated = true
             }
         }
-        if updated == false, let huggingPriority = huggingPriority {
+        if let huggingPriority = huggingPriority {
             if view.contentHuggingPriority(for: .horizontal) != huggingPriority {
                 view.setContentHuggingPriority(huggingPriority, for: .horizontal)
                 updated = true
             }
         }
-        if updated == false, let column = column {
+        if let column = column {
             if configuration.column != column {
                 configuration.column = column
                 updated = true
             }
         }
-        if updated == false, let minHeight = minHeight {
+        if let minHeight = minHeight {
             if configuration.minHeight != minHeight {
                 configuration.minHeight = minHeight
                 updated = true
             }
+        }
+        if configuration.expandContent != expandContent {
+            configuration.expandContent = expandContent
+            updated = true
         }
         if updated {
             setNeedsLayout()
@@ -151,13 +155,15 @@ open class FlowGridView: UIView {
         views.forEach { element in
             guard let configuration = configurations[element] else { return }
             var viewHeight = configuration.minHeight
-            if viewHeight <= 0 {
-                viewHeight = element.bounds.size.height * 2
+            if configuration.expandContent == true {
+                if viewHeight <= 0 {
+                    viewHeight = element.bounds.size.height * 2
+                }
+                if viewHeight <= 0 {
+                    viewHeight = self.bounds.size.height
+                }
+                viewHeight = element.systemLayoutSizeFitting(CGSize(width: width, height: viewHeight)).height
             }
-            if viewHeight <= 0 {
-                viewHeight = self.bounds.size.height
-            }
-            viewHeight = element.systemLayoutSizeFitting(CGSize(width: width, height: viewHeight)).height
             if viewHeight > height {
                 height = element.bounds.size.height
             }
@@ -263,6 +269,8 @@ open class FlowGridView: UIView {
         var updatedColumn: UInt = 1
         
         var minHeight: CGFloat = 0
+        
+        var expandContent: Bool = false
     }
     
     /// Stores configuration for each subview.
